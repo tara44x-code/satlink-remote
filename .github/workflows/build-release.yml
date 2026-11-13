@@ -1,0 +1,98 @@
+name: Build Windows + Android
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to attach the files to (example: 2.3.0)"
+        required: true
+        default: "2.3.0"
+
+permissions:
+  contents: write
+
+env:
+  TAG: ${{ github.event.release.tag_name || inputs.tag }}
+
+jobs:
+  windows:
+    name: Windows ${{ matrix.arch }}
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x64, x86]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          architecture: ${{ matrix.arch }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pyinstaller==6.10.0
+          python -m pip install -r windows-agent/requirements.txt
+          python -m pip install -r server/requirements.txt
+
+      - name: Build SatLinkRelayServer.exe
+        working-directory: server
+        run: python -m PyInstaller --noconfirm --clean --onefile --windowed --icon satlink_server_icon.ico --name SatLinkRelayServer server_tray.py
+
+      - name: Build SatLinkRemotePRO.exe
+        working-directory: windows-agent
+        run: python -m PyInstaller --noconfirm --clean --onefile --windowed --icon assets/satlink_remote.ico --name SatLinkRemotePRO main.py
+
+      - name: Package
+        shell: pwsh
+        run: |
+          $out = "SatLinkRemotePRO_${env:TAG}_Windows_${{ matrix.arch }}"
+          New-Item -ItemType Directory -Force $out | Out-Null
+          Copy-Item windows-agent/dist/SatLinkRemotePRO.exe $out/
+          Copy-Item server/dist/SatLinkRelayServer.exe $out/
+          Copy-Item server/server_config.json $out/
+          Copy-Item server/satlink_server_icon.ico $out/
+          Copy-Item README_2_3_0_NEON_AR.txt $out/
+          Copy-Item UNIFIED_START_HERE_AR.txt $out/
+          Copy-Item REMOVE_OLD_SEPARATE_AUTOSTART.bat $out/
+          Compress-Archive -Path $out -DestinationPath "$out.zip" -Force
+
+      - name: Upload to release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG }}
+          files: SatLinkRemotePRO_*_Windows_*.zip
+
+  android:
+    name: Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: android-actions/setup-android@v3
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+
+      - name: Build APK
+        working-directory: android-app
+        run: gradle assembleDebug --no-daemon
+
+      - name: Rename APK
+        run: cp android-app/app/build/outputs/apk/debug/app-debug.apk "SatLinkRemotePRO_${TAG}_Android.apk"
+
+      - name: Upload to release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG }}
+          files: SatLinkRemotePRO_*_Android.apk
