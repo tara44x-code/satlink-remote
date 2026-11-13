@@ -1,0 +1,4 @@
+SatLink Remote PRO
+Version: PRO 2.3.0 Neon
+Developer: مهند سات لنك
+Windows builds: x64 and x86 (separate EXE files)

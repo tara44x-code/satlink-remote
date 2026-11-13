@@ -1,0 +1,39 @@
+SatLink Remote PRO - PRO 2.2.4 - توافق Windows 32/64-bit
+المطور: مهند سات لنك
+
+سبب رسالة: This app can't run on your PC
+غالباً الحاسبة 32-bit والملف EXE مبني 64-bit، أو نسخة Windows قديمة.
+
+الجديد في هذه النسخة:
+1. START_SATLINK_REMOTE.bat صار يفحص نوع Windows قبل تشغيل EXE.
+2. إذا الحاسبة x64 يحاول تشغيل نسخة x64.
+3. إذا الحاسبة x86 يحاول تشغيل نسخة x86.
+4. إذا ما موجود EXE مناسب، يرجع تلقائياً إلى تشغيل الكود عبر Python 3.11 حتى لا تظهر رسالة الخطأ.
+5. إضافة CHECK_WINDOWS_TYPE.bat لمعرفة نوع Windows.
+6. إضافة BUILD_COMPAT_EXES.bat لمحاولة بناء نسخ x64 و x86.
+
+طريقة الاستخدام السريع:
+- شغل START_SATLINK_REMOTE.bat فقط.
+- إذا عندك EXE مناسب راح يشتغل.
+- إذا ما عندك EXE مناسب راح يشتغل من Python.
+
+كيف تعرف نوع الحاسبة:
+شغل CHECK_WINDOWS_TYPE.bat
+
+بناء نسخة 64-bit:
+يحتاج Python 3.11 64-bit.
+شغل:
+windows-agent\build_exe_py311_x64.bat
+server\build_server_exe_py311_x64.bat
+
+بناء نسخة 32-bit:
+يحتاج Python 3.11 32-bit.
+شغل:
+windows-agent\build_exe_py311_x86.bat
+server\build_server_exe_py311_x86.bat
+
+ملاحظة مهمة:
+لا يمكن بناء EXE 32-bit من Python 64-bit. لازم تثبت Python 3.11 32-bit أو تبني النسخة على حاسبة 32-bit.
+
+الخلاصة:
+هذه النسخة تمنع تجربة تشغيل EXE خطأ على حاسبة غير مناسبة، وتستخدم Python fallback إذا لم توجد نسخة مناسبة.

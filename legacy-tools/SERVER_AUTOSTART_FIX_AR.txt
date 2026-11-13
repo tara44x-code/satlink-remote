@@ -1,0 +1,30 @@
+SatLinkRelayServer AutoStart Fix - PRO 2.2.4
+
+سبب أن السيرفر لم يعمل مع بدء Windows غالباً أن طريقة Startup Folder وحدها لا تعمل على بعض نسخ Windows أو أن المسار كان يحتاج تشغيل مخفي/مهمة مجدولة.
+
+هذه النسخة تضيف طريقتين معاً:
+1) Startup Folder VBS Launcher
+2) Windows Task Scheduler ONLOGON Fallback
+
+طريقة التفعيل:
+1. فك الضغط بمسار ثابت ولا تنقله بعد التفعيل. مثال:
+   C:\SatLinkRemotePRO
+
+2. شغل:
+   INSTALL_RELAY_AUTOSTART.bat
+
+3. شغل للاختبار الفوري:
+   TEST_RELAY_AUTOSTART_NOW.bat
+
+4. أعد تشغيل Windows.
+
+5. بعد الدخول إلى Windows، المفروض تظهر أيقونة SatLinkRelayServer يم الساعة.
+
+للفحص:
+   CHECK_RELAY_AUTOSTART.bat
+
+لإلغاء التشغيل التلقائي:
+   REMOVE_RELAY_AUTOSTART.bat
+
+ملاحظة مهمة:
+بعد تفعيل AutoStart لا تنقل مجلد البرنامج إلى مكان آخر. إذا نقلته، ألغِ AutoStart ثم فعّله من جديد.

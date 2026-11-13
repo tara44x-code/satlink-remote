@@ -1,0 +1,7 @@
+{
+  "host": "0.0.0.0",
+  "port": 7777,
+  "owner_token": "SLR-CHANGE-ME-PRO-2026",
+  "max_body_mb": 300,
+  "request_timeout_seconds": 180
+}

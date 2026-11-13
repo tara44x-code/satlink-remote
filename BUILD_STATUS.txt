@@ -1,0 +1,14 @@
+SatLink Remote PRO - PRO 2.2.4 Unified Auto Start
+
+Validation completed in this package:
+- Python source syntax checked successfully.
+- Root BAT launch/build/repair files are ASCII with Windows CRLF line endings.
+- Android project version updated to 2.2.4 PRO.
+
+Windows EXE files are produced on your Windows PC by running:
+BUILD_UNIFIED_RELEASE.bat
+
+The final output folder will contain:
+SatLinkRemotePRO.exe
+SatLinkRelayServer.exe
+server_config.json

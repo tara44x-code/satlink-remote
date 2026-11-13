@@ -1,0 +1,20 @@
+<resources>
+<style name="AppTheme" parent="android:style/Theme.Material.NoActionBar">
+    <item name="android:fontFamily">sans</item>
+    <item name="android:windowBackground">@color/bg</item>
+    <item name="android:colorBackground">@color/bg</item>
+    <item name="android:colorPrimary">@color/surface</item>
+    <item name="android:colorPrimaryDark">@color/bg</item>
+    <item name="android:colorAccent">@color/neon_cyan</item>
+    <item name="android:textColorPrimary">@color/text</item>
+    <item name="android:windowLightStatusBar">false</item>
+    <item name="android:statusBarColor">@color/bg</item>
+    <item name="android:navigationBarColor">@color/bg</item>
+    <item name="android:alertDialogTheme">@style/NeonDialog</item>
+</style>
+<style name="NeonDialog" parent="android:style/Theme.Material.Dialog.Alert">
+    <item name="android:colorAccent">@color/neon_cyan</item>
+    <item name="android:colorBackground">@color/surface</item>
+    <item name="android:textColorPrimary">@color/text</item>
+</style>
+</resources>

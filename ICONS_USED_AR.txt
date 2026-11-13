@@ -1,0 +1,11 @@
+الأيقونات المستخدمة في PRO 2.2.4:
+
+Android App Icon:
+- موبايل بداخله شعار Windows وإشارة اتصال لاسلكي.
+- موجودة داخل res/mipmap-* و drawable/satlink_remote_logo.png.
+
+Windows Agent Icon:
+- شاشة حاسبة + درع أمان + مؤشر اتصال.
+- موجودة داخل windows-agent/assets/satlink_remote.ico.
+
+إذا تريد تبديلها لاحقاً، بدّل ملفات mipmap للتطبيق و satlink_remote.ico للبرنامج ثم ابنِ APK/EXE من جديد.

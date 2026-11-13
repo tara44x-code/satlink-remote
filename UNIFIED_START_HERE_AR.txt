@@ -1,0 +1,25 @@
+SatLink Remote PRO - PRO 2.2.4 Unified Auto Start
+المطور: مهند سات لنك
+
+الجديد:
+- برنامج الحاسبة وSatLinkRelayServer يكونان جنب بعض داخل فولدر واحد بعد البناء.
+- تشغل SatLinkRemotePRO.exe فقط.
+- البرنامج يفحص المنفذ 7777، وإذا السيرفر غير شغال يشغله تلقائياً.
+- لا يسمح بتشغيل نسختين من السيرفر على نفس المنفذ.
+- عند تفعيل تشغيل مع Windows من البرنامج، يبدأ البرنامج الرئيسي ثم يشغل السيرفر تلقائياً.
+- السيرفر يظهر بجانب الساعة، وضغط X يخفيه ولا يغلقه.
+
+التجربة من المصدر:
+1) شغل START_SATLINK_REMOTE.bat فقط.
+2) داخل البرنامج فعل: تشغيل مع Windows.
+3) تأكد أن خيار: السيرفر مع البرنامج مفعّل.
+4) فعّل Relay تلقائي إذا تريد الاتصال بمجرد تشغيل Windows.
+
+بناء ملفي EXE داخل فولدر واحد:
+- شغل BUILD_UNIFIED_RELEASE.bat
+- الناتج داخل: dist-unified\SatLinkRemotePRO
+- شغل SatLinkRemotePRO.exe فقط.
+
+مهم:
+- إذا كنت مفعل تشغيل منفصل قديم للسيرفر، شغل REMOVE_OLD_SEPARATE_AUTOSTART.bat مرة واحدة.
+- لا تنقل ملف EXE وحده؛ خليه بجانب SatLinkRelayServer.exe وserver_config.json.

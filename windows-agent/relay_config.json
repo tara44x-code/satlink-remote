@@ -1,0 +1,6 @@
+{
+  "enabled": true,
+  "relay_server_url": "http://127.0.0.1:7777",
+  "owner_token": "SLR-CHANGE-ME-PRO-2026",
+  "local_agent_url": "http://127.0.0.1:47655"
+}

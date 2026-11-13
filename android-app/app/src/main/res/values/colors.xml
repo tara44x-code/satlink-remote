@@ -1,0 +1,10 @@
+<resources>
+    <color name="bg">#05060F</color>
+    <color name="surface">#0E1022</color>
+    <color name="neon_cyan">#00F0FF</color>
+    <color name="neon_magenta">#FF2BD6</color>
+    <color name="neon_purple">#8A5CFF</color>
+    <color name="neon_green">#39FF88</color>
+    <color name="neon_red">#FF3B6B</color>
+    <color name="text">#E6F1FF</color>
+</resources>

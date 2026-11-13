@@ -1,0 +1,22 @@
+SatLinkRelayServer تشغيل تلقائي مع Windows - PRO 2.2.4
+
+الجديد:
+- تشغيل SatLinkRelayServer فقط مع بدء Windows.
+- لا يشغّل برنامج الحاسبة Windows Agent تلقائياً.
+- السيرفر ينزل يم الساعة System Tray.
+- إذا ضغطت X على نافذة السيرفر يبقى شغال بالخلفية.
+
+طريقة التفعيل:
+1. شغل INSTALL_RELAY_AUTOSTART.bat
+2. انتظر رسالة Done.
+3. أعد تشغيل Windows للتجربة.
+4. المفروض تظهر أيقونة SatLinkRelayServer يم الساعة.
+
+لإلغاء التشغيل مع Windows:
+شغل REMOVE_RELAY_AUTOSTART.bat
+
+تشغيل يدوي للسيرفر فقط:
+شغل START_RELAY_SERVER_ONLY.bat
+
+ملاحظة:
+هذا خاص بالسيرفر فقط. إذا تريد برنامج الحاسبة يشتغل مع Windows أيضاً، يبقى من إعدادات برنامج الحاسبة نفسه وليس من هذا الملف.

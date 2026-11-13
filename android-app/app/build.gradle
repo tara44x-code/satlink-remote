@@ -1,0 +1,21 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.satlink.remotepro'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.satlink.remotepro'
+        minSdk 23
+        targetSdk 34
+        versionCode 230
+        versionName '2.3.0 Neon'
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
