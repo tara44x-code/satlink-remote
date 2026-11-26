@@ -81,7 +81,7 @@ public class FileTransferActivity extends Activity {
         sv.addView(root);
 
         root.addView(tv("SatLink Remote PRO - مدير الملفات", 23, Neon.CYAN, 1));
-        root.addView(tv("الجهاز: " + deviceName + "  |  PRO 2.3.0 Neon", 14, Neon.MUTED, 0));
+        root.addView(tv("الجهاز: " + deviceName + "  |  PRO 2.3.1 Neon", 14, Neon.MUTED, 0));
         status = tv("جاهز", 14, Neon.GREEN, 0);
         root.addView(status);
 

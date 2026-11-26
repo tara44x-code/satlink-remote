@@ -51,7 +51,7 @@ public class MainActivity extends Activity {
         TextView title = tv("SatLink Remote PRO", 28, blue, 1);
         Neon.glowText(title, Neon.CYAN);
         root.addView(title);
-        root.addView(tv("المطور: مهند سات لنك  |  PRO 2.3.0 Neon", 13, Neon.MUTED, 0));
+        root.addView(tv("المطور: مهند سات لنك  |  PRO 2.3.1 Neon", 13, Neon.MUTED, 0));
         status = tv("الأجهزة المحفوظة تبقى موجودة. استخدم Wi‑Fi أو Relay للاتصال من أي مكان.", 14, Neon.GREEN, 0);
         root.addView(status);
         root.addView(Neon.divider(this));
@@ -87,7 +87,7 @@ public class MainActivity extends Activity {
     void showAbout() {
         new AlertDialog.Builder(this)
                 .setTitle("SatLink Remote PRO")
-                .setMessage("الإصدار: PRO 2.3.0 Neon\nالمطور: مهند سات لنك\n\nنسخة 2.3.0 Neon: ثيم نيون جديد، شاشة تحكم كاملة بدون حواف سوداء، لوحة تحكم عائمة، وضع Touchpad، اختصارات كيبورد، كتابة عربي، وأزرار الطاقة (قفل/سكون/إعادة تشغيل/إطفاء).\n\nالأمان: الاتصال يحتاج Owner Token + PIN، والجهاز يبقى باسمك المختار دون الاعتماد على IP ثابت.")
+                .setMessage("الإصدار: PRO 2.3.1 Neon\nالمطور: مهند سات لنك\n\nنسخة 2.3.0 Neon: ثيم نيون جديد، شاشة تحكم كاملة بدون حواف سوداء، لوحة تحكم عائمة، وضع Touchpad، اختصارات كيبورد، كتابة عربي، وأزرار الطاقة (قفل/سكون/إعادة تشغيل/إطفاء).\n\nالأمان: الاتصال يحتاج Owner Token + PIN، والجهاز يبقى باسمك المختار دون الاعتماد على IP ثابت.")
                 .setPositiveButton("تمام", null)
                 .show();
     }

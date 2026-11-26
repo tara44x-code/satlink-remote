@@ -10,8 +10,8 @@ android {
         applicationId 'com.satlink.remotepro'
         minSdk 23
         targetSdk 34
-        versionCode 230
-        versionName '2.3.0 Neon'
+        versionCode 231
+        versionName '2.3.1 Neon'
     }
 
     compileOptions {

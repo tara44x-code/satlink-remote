@@ -1,6 +1,7 @@
 package com.satlink.remotepro;
 
 import android.app.*;
+import android.content.SharedPreferences;
 import android.os.*;
 import android.graphics.*;
 import android.view.*;
@@ -9,7 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
- * SatLink Remote PRO 2.3.0 Neon
+ * SatLink Remote PRO 2.3.1 Neon
  * - Full-screen remote view (no empty/black margins in "fill" mode, pan is clamped).
  * - Floating, collapsible neon control panel sized in dp and kept clear of system bars.
  * - Direct touch mode + Touchpad mode, keyboard keys, shortcuts and power actions.
@@ -18,10 +19,14 @@ public class RemoteActivity extends Activity {
     // ---- views ----
     FrameLayout root;
     ImageView screen;
-    TextView hud;
+    TextView hud;        // connection info row inside the panel
+    TextView miniInfo;   // optional faint info line over the screen
+    Button infoToggle;
     LinearLayout panel, chipRow, grid;
     HorizontalScrollView chipScroll;
-    TextView fab;
+    TextView fab;        // faint draggable handle that opens the panel
+    SharedPreferences prefs;
+    boolean showMiniInfo = false;
     TextView[] chips;
 
     // ---- connection ----
@@ -67,7 +72,7 @@ public class RemoteActivity extends Activity {
     volatile String streamError = null;
 
     // ---- panel ----
-    boolean panelOpen = true;
+    boolean panelOpen = false;
     int currentTab = 0;
     String[] tabNames = {"🖱 الماوس", "⌨ المفاتيح", "⚡ اختصارات", "🖥 العرض", "⏻ الطاقة"};
     int insetL = 0, insetT = 0, insetR = 0, insetB = 0;
@@ -151,26 +156,35 @@ public class RemoteActivity extends Activity {
             if (r - l != or - ol) renderGrid();
         });
 
-        // ---- HUD (top-left status pill) ----
-        hud = new TextView(this);
-        hud.setTextSize(11);
-        hud.setTextColor(Neon.CYAN);
-        hud.setSingleLine(true);
-        hud.setPadding(dp(12), dp(5), dp(12), dp(5));
-        hud.setBackground(Neon.rounded(Neon.alpha(Neon.BG, 190), Neon.alpha(Neon.CYAN, 140), 1, 14, this));
-        hud.setText("● " + name + " | جاري الاتصال...");
-        root.addView(hud, new FrameLayout.LayoutParams(-2, -2, Gravity.TOP | Gravity.START));
+        prefs = getSharedPreferences("satlink_remote_pro", MODE_PRIVATE);
+        showMiniInfo = prefs.getBoolean("show_mini_info", false);
 
-        // ---- floating toggle button (top-right) ----
+        // ---- optional faint info line (off by default, toggled from the panel) ----
+        miniInfo = new TextView(this);
+        miniInfo.setTextSize(10);
+        miniInfo.setSingleLine(true);
+        miniInfo.setTextColor(Neon.CYAN);
+        miniInfo.setShadowLayer(dp(3), 0, 0, Color.BLACK);
+        miniInfo.setAlpha(0.55f);
+        miniInfo.setPadding(dp(6), dp(2), dp(6), dp(2));
+        root.addView(miniInfo, new FrameLayout.LayoutParams(-2, -2, Gravity.TOP | Gravity.START));
+
+        // ---- faint draggable handle: tap = open controls, drag = move it anywhere ----
         fab = new TextView(this);
-        fab.setText("✕");
-        fab.setTextSize(20);
+        fab.setText("☰");
+        fab.setTextSize(18);
         fab.setGravity(Gravity.CENTER);
         fab.setTypeface(Typeface.DEFAULT_BOLD);
         Neon.glowText(fab, Neon.CYAN);
         fab.setBackground(Neon.circle(this, Neon.CYAN));
-        root.addView(fab, new FrameLayout.LayoutParams(dp(48), dp(48), Gravity.TOP | Gravity.END));
-        fab.setOnClickListener(v -> setPanelOpen(!panelOpen));
+        fab.setAlpha(HANDLE_IDLE_ALPHA);
+        root.addView(fab, new FrameLayout.LayoutParams(dp(44), dp(44), Gravity.END | Gravity.CENTER_VERTICAL));
+        fab.setOnTouchListener(this::onHandleTouch);
+        fab.post(() -> {
+            fab.setTranslationX(prefs.getFloat("handle_tx", 0f));
+            fab.setTranslationY(prefs.getFloat("handle_ty", 0f));
+            clampHandle();
+        });
 
         // ---- floating control panel (bottom) ----
         panel = new LinearLayout(this);
@@ -178,6 +192,30 @@ public class RemoteActivity extends Activity {
         panel.setBackground(Neon.glassPanel(this));
         panel.setPadding(dp(8), dp(8), dp(8), dp(8));
         panel.setClickable(true); // swallow touches so they don't reach the PC screen
+
+        // top row: connection info + info toggle + hide button
+        LinearLayout infoRow = new LinearLayout(this);
+        infoRow.setOrientation(LinearLayout.HORIZONTAL);
+        infoRow.setGravity(Gravity.CENTER_VERTICAL);
+        hud = new TextView(this);
+        hud.setTextSize(11);
+        hud.setTextColor(Neon.CYAN);
+        hud.setSingleLine(true);
+        hud.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        hud.setPadding(dp(4), 0, dp(6), 0);
+        hud.setText("● " + name + " | جاري الاتصال...");
+        infoRow.addView(hud, new LinearLayout.LayoutParams(0, -2, 1f));
+        infoToggle = Neon.smallButton(this, "", Neon.PURPLE);
+        infoToggle.setOnClickListener(v -> toggleMiniInfo());
+        infoRow.addView(infoToggle, new LinearLayout.LayoutParams(-2, dp(32)));
+        Button hide = Neon.smallButton(this, "▼ إخفاء", Neon.CYAN);
+        hide.setOnClickListener(v -> setPanelOpen(false));
+        LinearLayout.LayoutParams hlp = new LinearLayout.LayoutParams(-2, dp(32));
+        hlp.setMargins(dp(6), 0, 0, 0);
+        infoRow.addView(hide, hlp);
+        LinearLayout.LayoutParams irp = new LinearLayout.LayoutParams(-1, -2);
+        irp.setMargins(0, 0, 0, dp(6));
+        panel.addView(infoRow, irp);
 
         chipScroll = new HorizontalScrollView(this);
         chipScroll.setHorizontalScrollBarEnabled(false);
@@ -227,16 +265,82 @@ public class RemoteActivity extends Activity {
         setContentView(root);
         applyInsets();
         selectTab(0);
+        refreshInfoToggle();
+        setPanelOpen(false);
+        if (!prefs.getBoolean("handle_hint_shown", false)) {
+            toast("الأزرار مخفية: اضغط الزر الخافت ☰ لإظهارها، واسحبه لأي مكان يعجبك");
+            prefs.edit().putBoolean("handle_hint_shown", true).apply();
+        }
+    }
+
+    // ---------------- handle (drag to move, tap to open) ----------------
+    static final float HANDLE_IDLE_ALPHA = 0.35f;
+    float handleDownRawX, handleDownRawY, handleStartTx, handleStartTy;
+    boolean handleMoved;
+
+    boolean onHandleTouch(View v, MotionEvent e) {
+        switch (e.getActionMasked()) {
+            case MotionEvent.ACTION_DOWN:
+                handleDownRawX = e.getRawX(); handleDownRawY = e.getRawY();
+                handleStartTx = fab.getTranslationX(); handleStartTy = fab.getTranslationY();
+                handleMoved = false;
+                fab.setAlpha(0.95f);
+                return true;
+            case MotionEvent.ACTION_MOVE: {
+                float dx = e.getRawX() - handleDownRawX, dy = e.getRawY() - handleDownRawY;
+                if (!handleMoved && Math.hypot(dx, dy) > dp(8)) handleMoved = true;
+                if (handleMoved) {
+                    fab.setTranslationX(handleStartTx + dx);
+                    fab.setTranslationY(handleStartTy + dy);
+                    clampHandle();
+                }
+                return true;
+            }
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                fab.setAlpha(HANDLE_IDLE_ALPHA);
+                if (handleMoved) {
+                    prefs.edit().putFloat("handle_tx", fab.getTranslationX()).putFloat("handle_ty", fab.getTranslationY()).apply();
+                } else if (e.getActionMasked() == MotionEvent.ACTION_UP) {
+                    setPanelOpen(true);
+                }
+                return true;
+        }
+        return false;
+    }
+
+    /** Keeps the handle fully on screen and clear of the notch / system bars. */
+    void clampHandle() {
+        if (root.getWidth() == 0 || fab.getWidth() == 0) return;
+        float minTx = insetL + dp(4) - fab.getLeft(), maxTx = root.getWidth() - insetR - dp(4) - fab.getRight();
+        float minTy = insetT + dp(4) - fab.getTop(), maxTy = root.getHeight() - insetB - dp(4) - fab.getBottom();
+        fab.setTranslationX(Math.max(minTx, Math.min(maxTx, fab.getTranslationX())));
+        fab.setTranslationY(Math.max(minTy, Math.min(maxTy, fab.getTranslationY())));
+    }
+
+    void toggleMiniInfo() {
+        showMiniInfo = !showMiniInfo;
+        prefs.edit().putBoolean("show_mini_info", showMiniInfo).apply();
+        refreshInfoToggle();
+        miniInfo.setVisibility(!panelOpen && showMiniInfo ? View.VISIBLE : View.GONE);
+    }
+
+    void refreshInfoToggle() {
+        infoToggle.setText(showMiniInfo ? "ⓘ معلومات: ظاهرة" : "ⓘ معلومات: مخفية");
+        Neon.style(infoToggle, showMiniInfo ? Neon.GREEN : Neon.PURPLE);
+        infoToggle.setTextSize(12);
+        infoToggle.setPadding(dp(8), 0, dp(8), 0);
     }
 
     void applyInsets() {
         int m = dp(8);
-        FrameLayout.LayoutParams hp = (FrameLayout.LayoutParams) hud.getLayoutParams();
-        hp.setMargins(insetL + m, insetT + m, 0, 0);
-        hud.setLayoutParams(hp);
+        FrameLayout.LayoutParams mp = (FrameLayout.LayoutParams) miniInfo.getLayoutParams();
+        mp.setMargins(insetL + dp(4), insetT + dp(2), 0, 0);
+        miniInfo.setLayoutParams(mp);
         FrameLayout.LayoutParams fp = (FrameLayout.LayoutParams) fab.getLayoutParams();
-        fp.setMargins(0, insetT + m, insetR + m, 0);
+        fp.setMargins(0, 0, insetR + m, 0);
         fab.setLayoutParams(fp);
+        fab.post(this::clampHandle);
         FrameLayout.LayoutParams pp = (FrameLayout.LayoutParams) panel.getLayoutParams();
         pp.setMargins(insetL + m, 0, insetR + m, insetB + m);
         panel.setLayoutParams(pp);
@@ -245,7 +349,8 @@ public class RemoteActivity extends Activity {
     void setPanelOpen(boolean open) {
         panelOpen = open;
         panel.setVisibility(open ? View.VISIBLE : View.GONE);
-        fab.setText(open ? "✕" : "☰");
+        fab.setVisibility(open ? View.GONE : View.VISIBLE);
+        miniInfo.setVisibility(!open && showMiniInfo ? View.VISIBLE : View.GONE);
         hideBars();
     }
 
@@ -564,11 +669,20 @@ public class RemoteActivity extends Activity {
 
     void updateHud() {
         if (streamError != null) {
-            hud.setTextColor(Neon.RED);
-            hud.setText("● توقف البث: " + streamError);
+            String err = "● توقف البث: " + streamError;
+            hud.setTextColor(Neon.RED); hud.setText(err);
+            miniInfo.setTextColor(Neon.RED); miniInfo.setText(err);
+            Neon.glowText(fab, Neon.RED);          // handle turns red when the stream stops
+            fab.setBackground(Neon.circle(this, Neon.RED));
             return;
         }
+        if (fab.getCurrentTextColor() != Neon.CYAN) {
+            Neon.glowText(fab, Neon.CYAN);
+            fab.setBackground(Neon.circle(this, Neon.CYAN));
+        }
         hud.setTextColor(Neon.CYAN);
+        miniInfo.setTextColor(Neon.CYAN);
+        miniInfo.setText("● " + currentFps + " FPS · " + lastLatencyMs + "ms");
         hud.setText("● " + name + "  |  " + qualityNames[qualityIndex] + "  |  " + currentFps + " FPS  |  " + lastLatencyMs + "ms"
                 + (touchpadMode ? "  |  Touchpad" : "") + (dragMode ? "  |  سحب" : ""));
     }
